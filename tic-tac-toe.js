@@ -1,29 +1,3 @@
-// two players each take turns placing a marker (X, or O) onto a 3x3 board, with the goal of aligning 3 of their own marker in a row, in any direction
-
-// 0. players are shown an empty 3x3 board
-
-// 1. player chooses a cell to place their marker
-
-// 2. marker gets placed in that cell, markers cannot be replaced or shifted
-
-// 3. the board with the added marker is shown to the players
-
-// 4. board gets checked to assess whether there are any lines of 3 of the same marker in a row to determine whether the game is over
-
-// 5. repeate 1-4 until gameover
-
-// so in console:
-
-// 1. (p1.marker = x) p1 chooses cell at (1,1)
-
-// 2. board.cell at (1,1).value = p1.marker
-
-// 3. console.log(board)
-
-// 4. gameController.checkGameOver
-
-// 5. gameController.switchPlayer 
-
 function createPlayer(name, marker) {
   return {
     name,
@@ -47,8 +21,10 @@ function Gameboard() {
     // checks if chosen location is "available"
     if (board[rowCoord][colCoord].getMarker() === '-') {
       board[rowCoord][colCoord].setMarker(player.marker);
+      console.log(`Marker placed at row ${rowCoord}, column ${colCoord} by ${player.name}`);
       return true;
     } else {
+      console.log(`Cell at row ${rowCoord}, column ${colCoord} is not empty`);
       return false;
     }
   }
@@ -59,6 +35,7 @@ function Gameboard() {
   };
 
   return { 
+    board,
     placeMarker,
     printBoard
    };  
@@ -82,7 +59,6 @@ function Cell() {
    };
 };
 
-
 function gameController() {
   const p1 = createPlayer('p1', 'X');
   const p2 = createPlayer('p2', 'O');
@@ -90,6 +66,8 @@ function gameController() {
 
   // create empty board of cells
   const board = Gameboard();
+
+  const currentBoard = board.board
 
   // prints current board so board isn't revealed(?)
   const printCurrentBoard = () => board.printBoard();
@@ -100,12 +78,37 @@ function gameController() {
     currentPlayer = currentPlayer === players[0] ? players[1] : players[0];
   };
 
+  function isMatching(cell) {
+    console.log(`Comparing cell marker ${cell.getMarker()} to ${currentPlayer.marker}:`);
+
+    // need to match the _marker_ of the cell using getMarker()
+    return cell.getMarker() === currentPlayer.marker; 
+  }
+
+  function winCheckHorizontal() {
+    for (let i = 0; i < currentBoard.length; i++) {
+      console.log(`Checking row ${i} for win condition`);
+      console.log(`Row ${i}:`, currentBoard[i]);
+
+      if (currentBoard[i].every(isMatching)) {
+        console.log('winner winner!');
+        return;
+      } 
+    }
+    console.log('no horizontal winner')
+  }
+
   // calls the board method to place a marker on a player's turn
   const playTurn = (row, col) => {
 
-    // switch players only when placeMarker returns true
-    board.placeMarker(row, col, currentPlayer) === true ? switchPlayer() : console.log("Please pick an empty square")  
+    const validMove = board.placeMarker(row, col, currentPlayer)
+    
     printCurrentBoard();
+    
+    winCheckHorizontal();
+    
+    // switch players only when placeMarker returns true
+    validMove ? switchPlayer() : console.log("Please pick an empty square")
 
     console.log(`it's ${currentPlayer.name}'s turn`)
   }
@@ -118,4 +121,9 @@ function gameController() {
 
 game = gameController();
 
-
+// emulate horizontal win
+game.playTurn(0, 0)
+game.playTurn(1, 0)
+game.playTurn(0, 1)
+game.playTurn(1, 1)
+game.playTurn(0, 2)
