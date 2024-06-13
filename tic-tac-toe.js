@@ -1,3 +1,29 @@
+// two players each take turns placing a marker (X, or O) onto a 3x3 board, with the goal of aligning 3 of their own marker in a row, in any direction
+
+// 0. players are shown an empty 3x3 board
+
+// 1. player chooses a cell to place their marker
+
+// 2. marker gets placed in that cell, markers cannot be replaced or shifted
+
+// 3. the board with the added marker is shown to the players
+
+// 4. board gets checked to assess whether there are any lines of 3 of the same marker in a row to determine whether the game is over
+
+// 5. repeate 1-4 until gameover
+
+// so in console:
+
+// 1. (p1.marker = x) p1 chooses cell at (1,1)
+
+// 2. board.cell at (1,1).value = p1.marker
+
+// 3. console.log(board)
+
+// 4. gameController.checkGameOver
+
+// 5. gameController.switchPlayer 
+
 function createPlayer(name, marker) {
   return {
     name,
@@ -18,7 +44,13 @@ function Gameboard() {
   }
 
   const placeMarker = (rowCoord, colCoord, player) => {
-    board[rowCoord][colCoord].setMarker(player.marker); 
+    // checks if chosen location is "available"
+    if (board[rowCoord][colCoord].getMarker() === '-') {
+      board[rowCoord][colCoord].setMarker(player.marker);
+      return true;
+    } else {
+      return false;
+    }
   }
 
   const printBoard = () => {
@@ -62,12 +94,23 @@ function gameController() {
   // prints current board so board isn't revealed(?)
   const printCurrentBoard = () => board.printBoard();
 
-  const playTurn = (row, col, player) => {
-    board.placeMarker(row, col, player)
+  let currentPlayer = players[0]
+
+  const switchPlayer = () => {
+    currentPlayer = currentPlayer === players[0] ? players[1] : players[0];
+  };
+
+  // calls the board method to place a marker on a player's turn
+  const playTurn = (row, col) => {
+
+    // switch players only when placeMarker returns true
+    board.placeMarker(row, col, currentPlayer) === true ? switchPlayer() : console.log("Please pick an empty square")  
+    printCurrentBoard();
+
+    console.log(`it's ${currentPlayer.name}'s turn`)
   }
 
   return {
-    players,
     playTurn,
     printCurrentBoard
   };
@@ -75,6 +118,4 @@ function gameController() {
 
 game = gameController();
 
-game.playTurn(0, 0, game.players[0]);
-game.printCurrentBoard();
 
