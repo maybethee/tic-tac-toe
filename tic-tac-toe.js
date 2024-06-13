@@ -17,12 +17,19 @@ function Gameboard() {
     }
   }
 
+  const placeMarker = (rowCoord, colCoord, player) => {
+    board[rowCoord][colCoord].setMarker(player.marker); 
+  }
+
   const printBoard = () => {
     const boardWithCellMarkers = board.map((row) => row.map((cell) => cell.getMarker()))
     console.log(boardWithCellMarkers);
   };
 
-  return { printBoard };  
+  return { 
+    placeMarker,
+    printBoard
+   };  
 }
 
 function Cell() {
@@ -33,7 +40,14 @@ function Cell() {
     return marker;
   };
 
-  return { getMarker };
+  function setMarker(newMarker) {
+    marker = newMarker;
+  }
+
+  return { 
+    getMarker,
+    setMarker
+   };
 };
 
 
@@ -45,14 +59,22 @@ function gameController() {
   // create empty board of cells
   const board = Gameboard();
 
+  // prints current board so board isn't revealed(?)
+  const printCurrentBoard = () => board.printBoard();
+
+  const playTurn = (row, col, player) => {
+    board.placeMarker(row, col, player)
+  }
+
   return {
     players,
-    board
+    playTurn,
+    printCurrentBoard
   };
 }
 
-console.log(gameController().players[0].name);
-console.log(gameController().players[0].marker);
-console.log(gameController().players[1].name);
-console.log(gameController().players[1].marker);
-console.log(gameController().board.printBoard());
+game = gameController();
+
+game.playTurn(0, 0, game.players[0]);
+game.printCurrentBoard();
+
