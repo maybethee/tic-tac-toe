@@ -17,7 +17,7 @@ const Gameboard = (() => {
     }
   }
 
-  const getBoard = () => board;
+  // const getBoard = () => board;
 
   const placeMarker = (rowCoord, colCoord, player) => {
     // checks if chosen location is "available"
@@ -77,7 +77,10 @@ function gameController() {
 
   const switchPlayer = () => {
     currentPlayer = currentPlayer === players[0] ? players[1] : players[0];
+    console.log(`Switched player. Current player is now: ${currentPlayer.name}`);
   };
+
+  const getCurrentPlayer = () => currentPlayer;
 
   function isMatching(cell) {
     // need to match the _marker_ of the cell using getMarker()
@@ -143,6 +146,14 @@ function gameController() {
   const playTurn = (row, col) => {
 
     const validMove = board.placeMarker(row, col, currentPlayer)
+
+    if (validMove) {
+      const cellButton = document.querySelector(`.cell[data-row='${row}'][data-col='${col}']`);
+
+      cellButton.textContent = currentPlayer.marker;
+    } else {
+      console.log("Please pick an empty square");
+    }
     
     printCurrentBoard();
     
@@ -155,43 +166,60 @@ function gameController() {
       return;
     }
     
-    // switch players only when placeMarker returns true
-    validMove ? switchPlayer() : console.log("Please pick an empty square")
-
-    console.log(`it's ${currentPlayer.name}'s turn`)
+    validMove && switchPlayer();
   }
 
   return {
     playTurn,
+    getCurrentPlayer,
     printCurrentBoard,
-    currentBoard
+    currentBoard,
   };
 }
 
 function displayController() {
   const game = gameController();
-  const boardDiv = document.querySelector('.board')
+  const boardDiv = document.querySelector('.board');
+  const playerTurnDiv = document.querySelector('.turn');
 
   const updateScreen = () => {
     // clear the board
     boardDiv.textContent = "";
 
+    // set the board and current player
     const board = game.currentBoard;
+    const currentPlayer = game.getCurrentPlayer();
+
+    console.log(`Updating screen. Current player is: ${currentPlayer.name}`);
+
+    // Display player's turn
+    playerTurnDiv.textContent = `${currentPlayer.name}'s turn...`
 
     // print board as buttons
-    board.forEach(row => {
-      row.forEach((cell) => {
+    board.forEach((row, rowIndex) => {
+      row.forEach((cell, colIndex) => {
         const cellButton = document.createElement("button");
         cellButton.classList.add("cell");
+        cellButton.dataset.row = rowIndex;
+        cellButton.dataset.col = colIndex;
         cellButton.textContent = cell.getMarker();
         boardDiv.appendChild(cellButton);
       })
     })
   }
 
-  updateScreen();
-};
+  boardDiv.addEventListener('click', (event) => {
+    if (event.target.matches('.cell')) {
+      const row = event.target.dataset.row;
+      const col = event.target.dataset.col;
+      game.playTurn(row, col);
+      updateScreen();
+    }
+  });
 
+  // Initial render
+  updateScreen();
+}
 displayController();
 
 // const game = gameController();
