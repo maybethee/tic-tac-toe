@@ -21,10 +21,8 @@ function Gameboard() {
     // checks if chosen location is "available"
     if (board[rowCoord][colCoord].getMarker() === '-') {
       board[rowCoord][colCoord].setMarker(player.marker);
-      console.log(`Marker placed at row ${rowCoord}, column ${colCoord} by ${player.name}`);
       return true;
     } else {
-      console.log(`Cell at row ${rowCoord}, column ${colCoord} is not empty`);
       return false;
     }
   }
@@ -79,23 +77,47 @@ function gameController() {
   };
 
   function isMatching(cell) {
-    console.log(`Comparing cell marker ${cell.getMarker()} to ${currentPlayer.marker}:`);
-
     // need to match the _marker_ of the cell using getMarker()
     return cell.getMarker() === currentPlayer.marker; 
   }
 
-  function winCheckHorizontal() {
+  function winCheckHorizontal(boardArray) {
     for (let i = 0; i < currentBoard.length; i++) {
-      console.log(`Checking row ${i} for win condition`);
-      console.log(`Row ${i}:`, currentBoard[i]);
-
-      if (currentBoard[i].every(isMatching)) {
+      if (boardArray[i].every(isMatching)) {
         console.log('winner winner!');
         return;
       } 
     }
-    console.log('no horizontal winner')
+    // console.log('no horizontal winner')
+  }
+
+  function winCheckVertical() {
+    function transpose(boardArray) {
+      return boardArray[0].map((col, i) => boardArray.map(row => row[i]));
+    }
+
+    const transposedBoard = transpose(currentBoard);
+
+    // no need to recreate the horizontal checks after transposing array, just pass new one in
+    winCheckHorizontal(transposedBoard);
+  }
+
+
+  function winCheckDiagonal() {
+    const diagonalArr = [currentBoard[0][0], currentBoard[1][1], currentBoard[2][2]];
+    const diagonalArr2 = [currentBoard[0][2], currentBoard[1][1], currentBoard[2][0]];
+
+    if (diagonalArr.every(isMatching) || diagonalArr2.every(isMatching)) {
+      console.log('winner winner');
+      return;
+    }
+    // console.log('no diagonal winner')
+  }
+
+  function winCheck() {
+    winCheckHorizontal(currentBoard);
+    winCheckVertical();
+    winCheckDiagonal();
   }
 
   // calls the board method to place a marker on a player's turn
@@ -105,7 +127,7 @@ function gameController() {
     
     printCurrentBoard();
     
-    winCheckHorizontal();
+    winCheck();
     
     // switch players only when placeMarker returns true
     validMove ? switchPlayer() : console.log("Please pick an empty square")
@@ -122,8 +144,22 @@ function gameController() {
 game = gameController();
 
 // emulate horizontal win
+// game.playTurn(0, 0)
+// game.playTurn(1, 0)
+// game.playTurn(0, 1)
+// game.playTurn(1, 1)
+// game.playTurn(0, 2)
+
+// emulate vertical win
 game.playTurn(0, 0)
-game.playTurn(1, 0)
-game.playTurn(0, 1)
 game.playTurn(1, 1)
-game.playTurn(0, 2)
+game.playTurn(1, 0)
+game.playTurn(2, 1)
+game.playTurn(2, 0)
+
+// emulate diagonal win
+// game.playTurn(0, 0)
+// game.playTurn(0, 2)
+// game.playTurn(1, 1)
+// game.playTurn(1, 0)
+// game.playTurn(2, 2)
