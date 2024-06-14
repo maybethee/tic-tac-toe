@@ -58,8 +58,8 @@ function Cell() {
 };
 
 function gameController() {
-  const p1 = createPlayer('p1', 'X');
-  const p2 = createPlayer('p2', 'O');
+  const p1 = createPlayer('p1', 'O');
+  const p2 = createPlayer('p2', 'X');
   const players = [p1, p2]
 
   // create empty board of cells
@@ -85,10 +85,11 @@ function gameController() {
     for (let i = 0; i < currentBoard.length; i++) {
       if (boardArray[i].every(isMatching)) {
         console.log('winner winner!');
-        return;
+        return true;
       } 
     }
     // console.log('no horizontal winner')
+    return false;
   }
 
   function winCheckVertical() {
@@ -99,9 +100,8 @@ function gameController() {
     const transposedBoard = transpose(currentBoard);
 
     // no need to recreate the horizontal checks after transposing array, just pass new one in
-    winCheckHorizontal(transposedBoard);
+    return winCheckHorizontal(transposedBoard);
   }
-
 
   function winCheckDiagonal() {
     const diagonalArr = [currentBoard[0][0], currentBoard[1][1], currentBoard[2][2]];
@@ -109,15 +109,31 @@ function gameController() {
 
     if (diagonalArr.every(isMatching) || diagonalArr2.every(isMatching)) {
       console.log('winner winner');
-      return;
+      return true;
     }
+    return false;
     // console.log('no diagonal winner')
   }
 
+  function tieCheck() {
+    function checkAllCoords() {
+      return currentBoard.every(row => row.every(cell => cell.getMarker() !== '-'))
+    }
+
+    if (checkAllCoords()) {
+      console.log('game ends in a tie')
+      return;
+    }
+    console.log('no tie')
+  }
+
   function winCheck() {
-    winCheckHorizontal(currentBoard);
-    winCheckVertical();
-    winCheckDiagonal();
+    if (winCheckHorizontal(currentBoard) || winCheckVertical() || winCheckDiagonal()) {
+      return;
+    }
+
+    // must also check for ties
+    tieCheck();
   }
 
   // calls the board method to place a marker on a player's turn
@@ -151,11 +167,11 @@ game = gameController();
 // game.playTurn(0, 2)
 
 // emulate vertical win
-game.playTurn(0, 0)
-game.playTurn(1, 1)
-game.playTurn(1, 0)
-game.playTurn(2, 1)
-game.playTurn(2, 0)
+// game.playTurn(0, 0)
+// game.playTurn(1, 1)
+// game.playTurn(1, 0)
+// game.playTurn(2, 1)
+// game.playTurn(2, 0)
 
 // emulate diagonal win
 // game.playTurn(0, 0)
@@ -163,3 +179,25 @@ game.playTurn(2, 0)
 // game.playTurn(1, 1)
 // game.playTurn(1, 0)
 // game.playTurn(2, 2)
+
+// emulate tie
+// game.playTurn(0, 2)
+// game.playTurn(0, 0)
+// game.playTurn(0, 1)
+// game.playTurn(1, 2)
+// game.playTurn(1, 0)
+// game.playTurn(1, 1)
+// game.playTurn(2, 2)
+// game.playTurn(2, 0)
+// game.playTurn(2, 1)
+
+// emulate win on last cell (don't call tieCheck())
+game.playTurn(0, 2)
+game.playTurn(0, 0)
+game.playTurn(0, 1)
+game.playTurn(1, 2)
+game.playTurn(1, 1)
+game.playTurn(2, 2)
+game.playTurn(1, 0)
+game.playTurn(2, 0)
+game.playTurn(2, 1)
