@@ -17,6 +17,8 @@ const Gameboard = (() => {
     }
   }
 
+  const getBoard = () => board;
+
   const placeMarker = (rowCoord, colCoord, player) => {
     // checks if chosen location is "available"
     if (board[rowCoord][colCoord].getMarker() === '-') {
@@ -66,7 +68,7 @@ function gameController() {
   // const board = Gameboard();
   const board = Gameboard;
 
-  const currentBoard = board.board
+  const currentBoard = board.board;
 
   // prints current board so board isn't revealed(?)
   const printCurrentBoard = () => board.printBoard();
@@ -85,7 +87,7 @@ function gameController() {
   function winCheckHorizontal(boardArray) {
     for (let i = 0; i < currentBoard.length; i++) {
       if (boardArray[i].every(isMatching)) {
-        console.log('winner winner!');
+        // console.log('winner winner!');
         return true;
       } 
     }
@@ -109,7 +111,7 @@ function gameController() {
     const diagonalArr2 = [currentBoard[0][2], currentBoard[1][1], currentBoard[2][0]];
 
     if (diagonalArr.every(isMatching) || diagonalArr2.every(isMatching)) {
-      console.log('winner winner');
+      // console.log('winner winner');
       return true;
     }
     return false;
@@ -122,8 +124,8 @@ function gameController() {
     }
 
     if (checkAllCoords()) {
-      console.log('game ends in a tie')
-      return;
+      // console.log('game ends in a tie')
+      return true;
     }
     // console.log('no tie')
   }
@@ -146,7 +148,10 @@ function gameController() {
     
     if (winCheck()) {
       // break out of function and do gameover
-      console.log('game over!')
+      console.log(`${currentPlayer.name} wins!`)
+      return;
+    } else if (tieCheck()) {
+      console.log(`it's a tie!`)
       return;
     }
     
@@ -158,11 +163,38 @@ function gameController() {
 
   return {
     playTurn,
-    printCurrentBoard
+    printCurrentBoard,
+    currentBoard
   };
 }
 
-game = gameController();
+function displayController() {
+  const game = gameController();
+  const boardDiv = document.querySelector('.board')
+
+  const updateScreen = () => {
+    // clear the board
+    boardDiv.textContent = "";
+
+    const board = game.currentBoard;
+
+    // print board as buttons
+    board.forEach(row => {
+      row.forEach((cell) => {
+        const cellButton = document.createElement("button");
+        cellButton.classList.add("cell");
+        cellButton.textContent = cell.getMarker();
+        boardDiv.appendChild(cellButton);
+      })
+    })
+  }
+
+  updateScreen();
+};
+
+displayController();
+
+// const game = gameController();
 
 // emulate horizontal win
 // game.playTurn(0, 0)
@@ -186,15 +218,15 @@ game = gameController();
 // game.playTurn(2, 2)
 
 // emulate tie
-game.playTurn(0, 2)
-game.playTurn(0, 0)
-game.playTurn(0, 1)
-game.playTurn(1, 2)
-game.playTurn(1, 0)
-game.playTurn(1, 1)
-game.playTurn(2, 2)
-game.playTurn(2, 0)
-game.playTurn(2, 1)
+// game.playTurn(0, 2)
+// game.playTurn(0, 0)
+// game.playTurn(0, 1)
+// game.playTurn(1, 2)
+// game.playTurn(1, 0)
+// game.playTurn(1, 1)
+// game.playTurn(2, 2)
+// game.playTurn(2, 0)
+// game.playTurn(2, 1)
 
 // emulate win on last cell (don't call tieCheck())
 // game.playTurn(0, 2)
