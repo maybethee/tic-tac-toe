@@ -5,7 +5,7 @@ function createPlayer(name, marker) {
   };
 }
 
-function Gameboard() {
+const Gameboard = (() => {
   const rows = 3;
   const columns = 3;
   const board = [];
@@ -36,8 +36,8 @@ function Gameboard() {
     board,
     placeMarker,
     printBoard
-   };  
-}
+    };  
+})();
 
 function Cell() {
   // default value is no marker
@@ -63,7 +63,8 @@ function gameController() {
   const players = [p1, p2]
 
   // create empty board of cells
-  const board = Gameboard();
+  // const board = Gameboard();
+  const board = Gameboard;
 
   const currentBoard = board.board
 
@@ -124,12 +125,12 @@ function gameController() {
       console.log('game ends in a tie')
       return;
     }
-    console.log('no tie')
+    // console.log('no tie')
   }
 
   function winCheck() {
     if (winCheckHorizontal(currentBoard) || winCheckVertical() || winCheckDiagonal()) {
-      return;
+      return true;
     }
 
     // must also check for ties
@@ -143,7 +144,11 @@ function gameController() {
     
     printCurrentBoard();
     
-    winCheck();
+    if (winCheck()) {
+      // break out of function and do gameover
+      console.log('game over!')
+      return;
+    }
     
     // switch players only when placeMarker returns true
     validMove ? switchPlayer() : console.log("Please pick an empty square")
@@ -181,23 +186,23 @@ game = gameController();
 // game.playTurn(2, 2)
 
 // emulate tie
-// game.playTurn(0, 2)
-// game.playTurn(0, 0)
-// game.playTurn(0, 1)
-// game.playTurn(1, 2)
-// game.playTurn(1, 0)
-// game.playTurn(1, 1)
-// game.playTurn(2, 2)
-// game.playTurn(2, 0)
-// game.playTurn(2, 1)
-
-// emulate win on last cell (don't call tieCheck())
 game.playTurn(0, 2)
 game.playTurn(0, 0)
 game.playTurn(0, 1)
 game.playTurn(1, 2)
+game.playTurn(1, 0)
 game.playTurn(1, 1)
 game.playTurn(2, 2)
-game.playTurn(1, 0)
 game.playTurn(2, 0)
 game.playTurn(2, 1)
+
+// emulate win on last cell (don't call tieCheck())
+// game.playTurn(0, 2)
+// game.playTurn(0, 0)
+// game.playTurn(0, 1)
+// game.playTurn(1, 2)
+// game.playTurn(1, 1)
+// game.playTurn(2, 2)
+// game.playTurn(1, 0)
+// game.playTurn(2, 0)
+// game.playTurn(2, 1)
