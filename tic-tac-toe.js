@@ -17,11 +17,9 @@ const Gameboard = (() => {
     }
   }
 
-  // const getBoard = () => board;
-
   const placeMarker = (rowCoord, colCoord, player) => {
     // checks if chosen location is "available"
-    if (board[rowCoord][colCoord].getMarker() === '-') {
+    if (board[rowCoord][colCoord].getMarker() === '_') {
       board[rowCoord][colCoord].setMarker(player.marker);
       return true;
     } else {
@@ -43,7 +41,7 @@ const Gameboard = (() => {
 
 function Cell() {
   // default value is no marker
-  let marker = '-';
+  let marker = '_';
 
   function getMarker() {
     return marker;
@@ -114,23 +112,19 @@ function gameController() {
     const diagonalArr2 = [currentBoard[0][2], currentBoard[1][1], currentBoard[2][0]];
 
     if (diagonalArr.every(isMatching) || diagonalArr2.every(isMatching)) {
-      // console.log('winner winner');
       return true;
     }
     return false;
-    // console.log('no diagonal winner')
   }
 
   function tieCheck() {
     function checkAllCoords() {
-      return currentBoard.every(row => row.every(cell => cell.getMarker() !== '-'))
+      return currentBoard.every(row => row.every(cell => cell.getMarker() !== '_'))
     }
 
     if (checkAllCoords()) {
-      // console.log('game ends in a tie')
       return true;
     }
-    // console.log('no tie')
   }
 
   function winCheck() {
@@ -146,23 +140,26 @@ function gameController() {
   const playTurn = (row, col) => {
 
     const validMove = board.placeMarker(row, col, currentPlayer)
+    const errorMessage = document.querySelector('.alert')
+
 
     if (validMove) {
+      errorMessage.textContent = ""
+      
+      // match clicked button's data with board array's coordinates
       const cellButton = document.querySelector(`.cell[data-row='${row}'][data-col='${col}']`);
 
       cellButton.textContent = currentPlayer.marker;
     } else {
-      console.log("Please pick an empty square");
+      errorMessage.textContent = "Please pick an empty square"
     }
     
     printCurrentBoard();
     
     if (winCheck()) {
       // break out of function and do gameover
-      console.log(`${currentPlayer.name} wins!`)
       return;
     } else if (tieCheck()) {
-      console.log(`it's a tie!`)
       return;
     }
     
@@ -174,6 +171,8 @@ function gameController() {
     getCurrentPlayer,
     printCurrentBoard,
     currentBoard,
+    winCheck,
+    tieCheck
   };
 }
 
@@ -181,8 +180,9 @@ function displayController() {
   const game = gameController();
   const boardDiv = document.querySelector('.board');
   const playerTurnDiv = document.querySelector('.turn');
+  const resultsDiv = document.querySelector('.results')
 
-  const updateScreen = () => {
+  const updateDisplay = () => {
     // clear the board
     boardDiv.textContent = "";
 
@@ -190,10 +190,17 @@ function displayController() {
     const board = game.currentBoard;
     const currentPlayer = game.getCurrentPlayer();
 
-    console.log(`Updating screen. Current player is: ${currentPlayer.name}`);
-
-    // Display player's turn
+    // display player's turn
     playerTurnDiv.textContent = `${currentPlayer.name}'s turn...`
+
+    // display results when game ends
+    if (game.winCheck()) {
+      freezeBoard();
+      resultsDiv.textContent = `${currentPlayer.name} wins!`
+    } else if (game.tieCheck()) {
+      freezeBoard();
+      resultsDiv.textContent = "it's a tie"
+    }
 
     // print board as buttons
     board.forEach((row, rowIndex) => {
@@ -208,18 +215,27 @@ function displayController() {
     })
   }
 
-  boardDiv.addEventListener('click', (event) => {
+  // board event listener functions
+  function playGame(event) {
+    console.log('playGame was called')
     if (event.target.matches('.cell')) {
       const row = event.target.dataset.row;
       const col = event.target.dataset.col;
       game.playTurn(row, col);
-      updateScreen();
+      updateDisplay();
     }
-  });
+  }
+
+  boardDiv.addEventListener('click', playGame)
+
+  function freezeBoard() {
+    boardDiv.removeEventListener('click', playGame)
+  }
 
   // Initial render
-  updateScreen();
+  updateDisplay();
 }
+
 displayController();
 
 // const game = gameController();

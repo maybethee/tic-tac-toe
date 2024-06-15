@@ -7,4 +7,18 @@ h1 {
   height: 500px;;
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
+  gap: 2px;
+}
+
+.cell {
+  height: calc((500 / 3) - 4rem);
+  font-size: 4rem;
+  background-color: lightcoral;
+  border: none;
+}
+
+.alert {
+  font-weight: 800;
+  font-size: 1.25rem;
+  color: red;
 }
