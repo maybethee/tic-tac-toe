@@ -2,18 +2,28 @@ h1 {
   color: blue;
 }
 
+.cell.active-game {
+  background-color: greenyellow;
+}
+
+.cell.active-game:hover {
+  background-color: green;
+}
+
+
+
 .board {
   width: 500px;
   height: 500px;;
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
-  gap: 2px;
+  gap: 5px;
 }
 
 .cell {
   height: calc((500 / 3) - 4rem);
   font-size: 4rem;
-  background-color: lightcoral;
+  background-color: grey;
   border: none;
 }
 

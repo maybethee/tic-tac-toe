@@ -32,10 +32,19 @@ const Gameboard = (() => {
     console.log(boardWithCellMarkers);
   };
 
+  const resetBoard = () => {
+    for (let i = 0; i < rows; i++) {
+      for (let j = 0; j < columns; j++) {
+        board[i][j].setMarker('_');
+      }
+    }
+  }
+
   return { 
     board,
     placeMarker,
-    printBoard
+    printBoard,
+    resetBoard
     };  
 })();
 
@@ -88,11 +97,9 @@ function gameController() {
   function winCheckHorizontal(boardArray) {
     for (let i = 0; i < currentBoard.length; i++) {
       if (boardArray[i].every(isMatching)) {
-        // console.log('winner winner!');
         return true;
       } 
     }
-    // console.log('no horizontal winner')
     return false;
   }
 
@@ -164,7 +171,14 @@ function gameController() {
     }
     
     validMove && switchPlayer();
-  }
+  };
+
+  const resetGame = () => {
+    board.resetBoard();
+    
+    // reset player order
+    currentPlayer = players[0];
+  };
 
   return {
     playTurn,
@@ -172,7 +186,8 @@ function gameController() {
     printCurrentBoard,
     currentBoard,
     winCheck,
-    tieCheck
+    tieCheck,
+    resetGame
   };
 }
 
@@ -180,7 +195,9 @@ function displayController() {
   const game = gameController();
   const boardDiv = document.querySelector('.board');
   const playerTurnDiv = document.querySelector('.turn');
-  const resultsDiv = document.querySelector('.results')
+  const resultsDiv = document.querySelector('.results');
+  const startButton = document.querySelector('.gameStart');
+  let gameStarted = false;
 
   const updateDisplay = () => {
     // clear the board
@@ -191,15 +208,15 @@ function displayController() {
     const currentPlayer = game.getCurrentPlayer();
 
     // display player's turn
-    playerTurnDiv.textContent = `${currentPlayer.name}'s turn...`
+    playerTurnDiv.textContent = `${currentPlayer.name}'s turn...`;
 
     // display results when game ends
     if (game.winCheck()) {
       freezeBoard();
-      resultsDiv.textContent = `${currentPlayer.name} wins!`
+      resultsDiv.textContent = `${currentPlayer.name} wins!`;
     } else if (game.tieCheck()) {
       freezeBoard();
-      resultsDiv.textContent = "it's a tie"
+      resultsDiv.textContent = "it's a tie";
     }
 
     // print board as buttons
@@ -207,6 +224,9 @@ function displayController() {
       row.forEach((cell, colIndex) => {
         const cellButton = document.createElement("button");
         cellButton.classList.add("cell");
+        if (gameStarted) {
+          cellButton.classList.add("active-game");
+        }
         cellButton.dataset.row = rowIndex;
         cellButton.dataset.col = colIndex;
         cellButton.textContent = cell.getMarker();
@@ -217,7 +237,6 @@ function displayController() {
 
   // board event listener functions
   function playGame(event) {
-    console.log('playGame was called')
     if (event.target.matches('.cell')) {
       const row = event.target.dataset.row;
       const col = event.target.dataset.col;
@@ -226,13 +245,46 @@ function displayController() {
     }
   }
 
-  boardDiv.addEventListener('click', playGame)
-
   function freezeBoard() {
-    boardDiv.removeEventListener('click', playGame)
+    boardDiv.removeEventListener('click', playGame);
+    gameStarted = false;
+
+    let cells = document.querySelectorAll('.cell');
+
+
+    cells.forEach(function(cell) {
+      cell.classList.remove('active-game');
+    });
+  }
+  
+  startButton.addEventListener('click', activateBoard);
+
+  function activateBoard(event) {
+    // makes board clickable
+    boardDiv.addEventListener('click', playGame);
+    gameStarted = true;
+
+    let cells = document.querySelectorAll('.cell');
+
+    cells.forEach(function(cell) {
+      cell.classList.add('active-game');
+    });
+
+    startButton.textContent = "Reset Game";
   }
 
-  // Initial render
+  startButton.addEventListener('click', function() {
+    if (gameStarted) {
+      // button resets the game if one is in progress
+      game.resetGame();
+      updateDisplay();
+      resultsDiv.textContent = ""
+    } else {
+      activateBoard();
+    }
+  });
+
+  // initial render
   updateDisplay();
 }
 
