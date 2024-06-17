@@ -72,11 +72,10 @@ form {
 .input-fields {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 3rem;
 }
 
 .input-fields>* {
-  margin: 2rem 0rem;
+  margin: 2rem 5rem;
   font-size: 1.25rem;
 }
 
@@ -104,6 +103,7 @@ input {
 }
 
 .cell.active-game:hover {
+  cursor: pointer;
   background-color: #678527;
 }
 
