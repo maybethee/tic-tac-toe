@@ -28,8 +28,7 @@ const Gameboard = (() => {
   }
 
   const printBoard = () => {
-    const boardWithCellMarkers = board.map((row) => row.map((cell) => cell.getMarker()))
-    console.log(boardWithCellMarkers);
+    board.map((row) => row.map((cell) => cell.getMarker()))
   };
 
   const resetBoard = () => {
@@ -67,12 +66,33 @@ function Cell() {
 };
 
 function gameController() {
-  const p1 = createPlayer('p1', 'O');
-  const p2 = createPlayer('p2', 'X');
-  const players = [p1, p2]
+
+  // set default players
+  let p1 = createPlayer('Player 1', 'O');
+  let p2 = createPlayer('Player 2', 'X');
+  let players = [p1, p2];
+
+  function setPlayerNames() {
+    // const p1Name = document.getElementById("p1Name")
+    p1Name = document.getElementById("p1Name").value;
+    p2Name = document.getElementById("p2Name").value;
+
+    if (p1Name !== "") {
+      p1.name = p1Name;
+    }
+
+    if (p2Name !== "") {
+      p2.name = p2Name;
+    }
+ 
+    const formContent = document.querySelectorAll(".formContent");
+
+    formContent.forEach(element => {
+      element.style.visibility = "hidden";
+    });
+  }
 
   // create empty board of cells
-  // const board = Gameboard();
   const board = Gameboard;
 
   const currentBoard = board.board;
@@ -84,7 +104,6 @@ function gameController() {
 
   const switchPlayer = () => {
     currentPlayer = currentPlayer === players[0] ? players[1] : players[0];
-    console.log(`Switched player. Current player is now: ${currentPlayer.name}`);
   };
 
   const getCurrentPlayer = () => currentPlayer;
@@ -181,6 +200,7 @@ function gameController() {
   };
 
   return {
+    setPlayerNames,
     playTurn,
     getCurrentPlayer,
     printCurrentBoard,
@@ -191,7 +211,10 @@ function gameController() {
   };
 }
 
-function displayController() {
+
+
+
+(function displayController() {
   const game = gameController();
   const boardDiv = document.querySelector('.board');
   const playerTurnDiv = document.querySelector('.turn');
@@ -208,7 +231,10 @@ function displayController() {
     const currentPlayer = game.getCurrentPlayer();
 
     // display player's turn
-    playerTurnDiv.textContent = `${currentPlayer.name}'s turn...`;
+    if (!gameStarted) {
+      playerTurnDiv.style.visibility = "hidden";
+    }
+    playerTurnDiv.textContent = `${currentPlayer.name}'s turn`;
 
     // display results when game ends
     if (game.winCheck()) {
@@ -216,7 +242,7 @@ function displayController() {
       resultsDiv.textContent = `${currentPlayer.name} wins!`;
     } else if (game.tieCheck()) {
       freezeBoard();
-      resultsDiv.textContent = "it's a tie";
+      resultsDiv.textContent = "TIE!";
     }
 
     // print board as buttons
@@ -251,15 +277,20 @@ function displayController() {
 
     let cells = document.querySelectorAll('.cell');
 
-
     cells.forEach(function(cell) {
       cell.classList.remove('active-game');
     });
-  }
-  
-  startButton.addEventListener('click', activateBoard);
 
-  function activateBoard(event) {
+    playerTurnDiv.style.visibility = "hidden";
+  }
+
+  startButton.addEventListener('click', (event) => {
+    event.preventDefault();
+    activateBoard();
+    game.setPlayerNames();
+  });
+
+  function activateBoard() {
     // makes board clickable
     boardDiv.addEventListener('click', playGame);
     gameStarted = true;
@@ -271,6 +302,7 @@ function displayController() {
     });
 
     startButton.textContent = "Reset Game";
+    playerTurnDiv.style.visibility = "visible";
   }
 
   startButton.addEventListener('click', function() {
@@ -286,51 +318,4 @@ function displayController() {
 
   // initial render
   updateDisplay();
-}
-
-displayController();
-
-// const game = gameController();
-
-// emulate horizontal win
-// game.playTurn(0, 0)
-// game.playTurn(1, 0)
-// game.playTurn(0, 1)
-// game.playTurn(1, 1)
-// game.playTurn(0, 2)
-
-// emulate vertical win
-// game.playTurn(0, 0)
-// game.playTurn(1, 1)
-// game.playTurn(1, 0)
-// game.playTurn(2, 1)
-// game.playTurn(2, 0)
-
-// emulate diagonal win
-// game.playTurn(0, 0)
-// game.playTurn(0, 2)
-// game.playTurn(1, 1)
-// game.playTurn(1, 0)
-// game.playTurn(2, 2)
-
-// emulate tie
-// game.playTurn(0, 2)
-// game.playTurn(0, 0)
-// game.playTurn(0, 1)
-// game.playTurn(1, 2)
-// game.playTurn(1, 0)
-// game.playTurn(1, 1)
-// game.playTurn(2, 2)
-// game.playTurn(2, 0)
-// game.playTurn(2, 1)
-
-// emulate win on last cell (don't call tieCheck())
-// game.playTurn(0, 2)
-// game.playTurn(0, 0)
-// game.playTurn(0, 1)
-// game.playTurn(1, 2)
-// game.playTurn(1, 1)
-// game.playTurn(2, 2)
-// game.playTurn(1, 0)
-// game.playTurn(2, 0)
-// game.playTurn(2, 1)
+})()

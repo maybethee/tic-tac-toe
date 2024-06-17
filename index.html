@@ -4,17 +4,38 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="style.css">
-  <title>Document</title>
+  <title>Tic-Tac-Toe</title>
 </head>
 <body>
-  <h1>tic tac toe</h1>
-
-  <button class="gameStart">Start Game</button>
+  <form id="playerNamesForm">
+    <h1 class="formContent">Enter player names:</h1>
+    
+    <div class="input-fields formContent">
+      <p class="nameInput">
+        <label>
+          Player 1:
+          <input type="text" id="p1Name" name="p1Name" minlength="1" />
+        </label>
+      </p>
   
-  <div class="turn"></div>
-  <div class="board"></div>
-  <div class="alert"></div>
-  <div class="results"></div>
+      <p class="nameInput">
+        <label>
+          Player 2:
+          <input type="text" id="p2Name" name="p2Name" minlength="1" />
+        </label>
+      </p>
+    </div>
+
+  
+    <button class="gameStart">Start Game</button>
+  </form>
+
+  <div id="game">
+    <div class="turn"></div>
+    <div class="board"></div>
+    <div class="alert"></div>
+    <div class="results"></div>
+  </div>
   
   
   <script src="tic-tac-toe.js"></script>
